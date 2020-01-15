@@ -1,4 +1,5 @@
 module.exports = {
   mongoURI:
-    "mongodb+srv://abod:5GxlIBj4zQPIiDID@cluster0-nfwte.mongodb.net/test?retryWrites=true&w=majority"
+    "mongodb+srv://abod:5GxlIBj4zQPIiDID@cluster0-nfwte.mongodb.net/DevConnector?retryWrites=true&w=majority",
+  jwtSecret: "i-love-shwarma"
 };
