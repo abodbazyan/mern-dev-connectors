@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 // Require the routes
-const authRoutes = require("./routes/api/authRoutes");
+const userRoutes = require("./routes/api/userRoutes");
 const postRoutes = require("./routes/api/postRoutes");
 const profileRoutes = require("./routes/api/profileRoutes");
 
@@ -20,7 +20,7 @@ mongoose
   .catch(error => console.log(error));
 
 // Use the routes
-app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/post", postRoutes);
 
