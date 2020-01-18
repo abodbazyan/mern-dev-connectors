@@ -14,13 +14,14 @@ router.post('/register', userController.register);
 // @access  public
 router.post('/login', userController.login);
 
+// ***********************************
+// Checking if the user is authenticated or not
+router.use(passport.authenticate('jwt', { session: false }));
+// ***********************************
+
 // @route   GET   api/user/current
 // @desc    return current user
 // @access  private
-router.get(
-  '/current',
-  passport.authenticate('jwt', { session: false }),
-  userController.current
-);
+router.get('/current', userController.current);
 
 module.exports = router;
