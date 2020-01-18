@@ -1,36 +1,42 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const morgan = require("morgan");
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const passport = require('passport');
 
 // Require the routes
-const userRoutes = require("./routes/api/userRoutes");
-const postRoutes = require("./routes/api/postRoutes");
-const profileRoutes = require("./routes/api/profileRoutes");
+const userRoutes = require('./routes/api/userRoutes');
+const postRoutes = require('./routes/api/postRoutes');
+const profileRoutes = require('./routes/api/profileRoutes');
 
 // Creating the app
 const app = express();
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 
 // BodyParser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Connect to the database
-const db = require("./config/keys").mongoURI;
+const db = require('./config/keys').mongoURI;
 mongoose
   .connect(db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
   })
-  .then(console.log("Database connected"))
+  .then(console.log('Database connected'))
   .catch(error => console.log(error));
 
+// Passport middleware
+app.use(passport.initialize());
+// Passport config
+require('./config/passport')(passport);
+
 // Use the routes
-app.use("/api/user", userRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/post", postRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/post', postRoutes);
 
 // Run the server
 const port = process.env.PORT || 5000;
