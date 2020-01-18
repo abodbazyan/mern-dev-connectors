@@ -1,31 +1,44 @@
-const User = require("../models/User");
-const gravatar = require("gravatar");
-const jwt = require("jsonwebtoken");
-const keys = require("../config/keys");
+const User = require('../models/User');
+const gravatar = require('gravatar');
+const jwt = require('jsonwebtoken');
+const keys = require('../config/keys');
+
+// Require the validators
+const validateRegisterInput = require('../validation/register');
+const validateLoginInput = require('../validation/login');
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, passwordConfirm } = req.body;
+
+  // Check Validation
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json({
+      errors
+    });
+  }
 
   const user = await User.findOne({ email });
 
   if (user) {
-    return res.status(409).json({ msg: "Email already in use" });
+    errors.email = 'Email already in use';
+    return res.status(409).json({ errors });
   } else {
     const avatar = gravatar.url(email, {
-      s: "200", // Size
-      r: "pg", // Rating
-      d: "mm" // Default
+      s: '200', // Size
+      r: 'pg', // Rating
+      d: 'mm' // Default
     });
 
     const newUser = await User.create({
       name,
       email,
       password,
+      passwordConfirm,
       avatar
     });
 
     res.status(201).json({
-      status: "success",
       data: newUser
     });
   }
@@ -34,25 +47,36 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-
-  if (!email || !password) {
-    return res.status(400).json({ msg: "Please provide email and password" });
+  // Check Validation
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(400).json({
+      errors
+    });
   }
 
+  const user = await User.findOne({ email }).select('+password');
+
   if (!user) {
-    return res.status(404).json({ msg: "Email does not exist" });
+    errors.email = 'Email does not exist';
+    return res.status(404).json({ errors });
   }
 
   if (!user || !(await user.comparePasswords(password, user.password))) {
-    return res.status(400).json({ msg: "Incorrect email or password" });
+    errors.password = 'Incorrect email or password';
+    return res.status(400).json({ errors });
   }
 
   const payload = { id: user._id };
   const token = jwt.sign(payload, keys.jwtSecret, { expiresIn: 3600 });
 
   res.status(200).json({
-    status: "success",
-    token: "Bearer " + token
+    token: 'Bearer ' + token
+  });
+};
+
+exports.current = (req, res) => {
+  res.status(200).json({
+    data: req.user
   });
 };
