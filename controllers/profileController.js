@@ -54,23 +54,31 @@ exports.createOrUpdateMyProfile = async (req, res) => {
   if (req.body.linkedIn) profileFields.social.linkedIn = req.body.linkedIn;
   if (req.body.instagram) profileFields.social.instagram = req.body.instagram;
 
-  const profile = await Profile.findOne({ user: req.user.id });
+  Profile.findOne({ user: req.user.id }).then(profile => {
+    if (profile) {
+      // Update
+      Profile.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: profileFields },
+        { new: true }
+      ).then(profile => res.json({ data: profile }));
+    } else {
+      // Create
 
-  if (profile) {
-    // Update
-    const updatedProfile = await Profile.findOneAndUpdate(
-      { user: req.user.id },
-      { $set: profileFields },
-      { new: true }
-    );
+      // Check if handle exists
+      Profile.findOne({ handle: profileFields.handle }).then(profile => {
+        if (profile) {
+          errors.handle = 'That handle already exists';
+          res.status(400).json({ errors });
+        }
 
-    res.status(200).json({ data: updatedProfile });
-  } else {
-    // Create
-    const newProfile = await Profile.create(profileFields);
-
-    res.status(201).json({ data: newProfile });
-  }
+        // Save Profile
+        new Profile(profileFields)
+          .save()
+          .then(profile => res.json({ data: profile }));
+      });
+    }
+  });
 };
 
 exports.getProfileByHandle = async (req, res) => {

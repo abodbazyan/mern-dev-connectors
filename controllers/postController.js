@@ -29,7 +29,7 @@ exports.createPost = (req, res) => {
 
 exports.getPosts = (req, res) => {
   Post.find()
-    .sort({ date: -1 })
+    .sort({ CreatedAt: -1 })
     .then(posts =>
       res.status(200).json({
         results: posts.length,

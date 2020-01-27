@@ -23,9 +23,10 @@ mongoose
   .connect(db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
   })
-  .then(console.log('Database connected'))
+  .then(console.log('Database Connected'))
   .catch(error => console.log(error));
 
 // Passport middleware

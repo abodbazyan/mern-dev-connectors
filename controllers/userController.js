@@ -67,7 +67,12 @@ exports.login = async (req, res) => {
     return res.status(400).json({ errors });
   }
 
-  const payload = { id: user._id };
+  const payload = {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar
+  };
   const token = jwt.sign(payload, keys.jwtSecret, { expiresIn: 3600 });
 
   res.status(200).json({
